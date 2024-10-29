@@ -1,0 +1,36 @@
+[DEFAULT] 
+# Do not ban from these IP ranges.
+ignoreip = {{ .Tags.service_fail2ban_ignoreip }}
+
+# Look for failures in a time window this large. We use an hour to detect slow scans.
+findtime  = 3600
+
+# 6 failures in $findtime window triggers a ban.
+maxretry = 6
+
+# Ban for 5 minutes on first set of failures.
+bantime  = 300
+
+# Increase ban time on additional failures.
+bantime.increment = true
+
+# Factor for bantime.formula
+bantime.factor = 1
+
+# Formula for calculating bantime. Used with bantime.factor 
+# to double bantime on each detected failure.
+bantime.formula = ban.Time * (1<<(ban.Count if ban.Count<20 else 20)) * banFactor
+
+# Maximum allowed bantime, cap at one year even though this can 
+# never be reached (a reboot will reset all bans)
+bantime.maxtime = 52w
+
+# Use frewalld
+banaction = firewallcmd-ipset
+
+# systemd for scraping logs.
+backend = systemd
+
+[sshd] 
+enabled = true
+
